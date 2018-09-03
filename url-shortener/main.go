@@ -18,7 +18,8 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/short", shortHandler)
 	mux.HandleFunc("/r/", redirectHandler)
-	mux.HandleFunc("/", homepageHandler)
+	// mux.HandleFunc("/", homepageHandler)
+	mux.Handle("/", http.FileServer(http.Dir("./html")))
 
 	log.Println("Starting application on", *addr)
 	if err := http.ListenAndServe(*addr, mux); err != nil {

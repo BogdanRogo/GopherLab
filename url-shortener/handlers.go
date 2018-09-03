@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/alecthomas/template"
 )
 
 type ContactDetails struct {
@@ -80,11 +78,11 @@ func redirectHandler(wr http.ResponseWriter, req *http.Request) {
 	http.Redirect(wr, req, redirectURL, http.StatusMovedPermanently)
 }
 
-func homepageHandler(wr http.ResponseWriter, req *http.Request) {
-	t, _ := template.ParseFiles("templates/welcome.html")
-	details := ContactDetails{
-		Url: req.FormValue("url"),
-	}
-	_ = details
-	t.Execute(wr, "Hello")
-}
+// func homepageHandler(wr http.ResponseWriter, req *http.Request) {
+// 	t, _ := template.ParseFiles("templates/index.html")
+// 	details := ContactDetails{
+// 		Url: req.FormValue("url"),
+// 	}
+// 	_ = details
+// 	t.Execute(wr, "Hello")
+// }
