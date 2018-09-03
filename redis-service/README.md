@@ -26,7 +26,8 @@ Is used to set a value to a specific key
 ```json
 {
 	"key": "key2",
-	"value": "This is a values"
+	"value": "This is a values",
+    "ttl": 500 // value in seconds
 }
 ```
 
@@ -35,7 +36,8 @@ Success:
 ```json
 {
     "message": "Success",
-    "status": 200
+    "status": 200,
+    "ttl": 488 // time to live
 }
 ```
 

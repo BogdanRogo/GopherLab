@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"git.metrosystems.net/reliability-engineering/reliability-sandbox/GopherLab/redis-service/models"
 	"git.metrosystems.net/reliability-engineering/reliability-sandbox/GopherLab/redis-service/utils"
@@ -44,7 +45,14 @@ func SetKeyHandler(w http.ResponseWriter, r *http.Request) {
 	var params models.SetKeyParams
 	utils.SafeParams(&params, r)
 	log.Printf("<Set key> params: %v\n", params)
-	err = client.Set(params.Key, params.Value, 0).Err()
+
+	ttl := time.Duration(params.TTL) * time.Second
+	if ttl == 0 {
+		ttl = time.Duration(864000) * time.Second
+	}
+
+	log.Println(ttl)
+	err = client.Set(params.Key, params.Value, ttl).Err()
 	response := models.OutResponse{Message: "Success", Status: http.StatusOK}
 	if err != nil {
 		response.Message = fmt.Sprintf("Error: %v", err)
@@ -73,7 +81,8 @@ func GetKeyHandler(w http.ResponseWriter, r *http.Request) {
 		result.Status = http.StatusInternalServerError
 		log.Printf("<Get key> error: %v\n", err)
 	} else {
-		json.NewEncoder(w).Encode(models.SetKeyParams{Key: keyString, Value: val})
+		ttl, _ := client.TTL(keyString).Result()
+		json.NewEncoder(w).Encode(models.SetKeyParams{Key: keyString, Value: val, TTL: int(ttl / time.Second)})
 		return
 	}
 
