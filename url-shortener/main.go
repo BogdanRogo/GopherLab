@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/alecthomas/template"
 )
 
 var (
@@ -15,6 +17,10 @@ var (
 	storageServiceSet = "/set-key"              // POST json
 	storageServiceGet = "/get-key/"             // GET /get-key/2600343750
 )
+
+type ContactDetails struct {
+	Url string
+}
 
 func hashURL(url string) uint32 {
 	// returns the hash of the url
@@ -90,6 +96,15 @@ func redirectHandler(wr http.ResponseWriter, req *http.Request) {
 	http.Redirect(wr, req, redirectURL, http.StatusMovedPermanently)
 }
 
+func homepageHandler(wr http.ResponseWriter, req *http.Request) {
+	t, _ := template.ParseFiles("templates/welcome.html")
+	details := ContactDetails{
+		Url: req.FormValue("url"),
+	}
+	_ = details
+	t.Execute(wr, "Hello")
+}
+
 func main() {
 	var addr = flag.String("addr", ":8081", "The addr of the application.")
 	// /short?url="https://medium.com/metrosystemsro/gitops-with-weave-flux-40997e929254"
@@ -97,6 +112,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/short", shortHandler)
 	mux.HandleFunc("/r/", redirectHandler)
+	mux.HandleFunc("/", homepageHandler)
 
 	log.Println("Starting application on", *addr)
 	if err := http.ListenAndServe(*addr, mux); err != nil {
