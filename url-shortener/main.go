@@ -1,18 +1,13 @@
 package main
 
 import (
-	"bytes"
-	"crypto/tls"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"hash/adler32"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 )
 
 var (
@@ -21,30 +16,11 @@ var (
 	storageServiceGet = "/get-key/"             // GET /get-key/2600343750
 )
 
-type storageStruct struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
-type userMessage struct {
-	URL   string `json:"url,omitempty"`
-	Error string `json:"error,omitempty"`
-}
-
 func hashURL(url string) uint32 {
 	// returns the hash of the url
 	const Size = 4
 	// return crc32.ChecksumIEEE([]byte(url)) // CRC
 	return adler32.Checksum([]byte(url)) //ADLER
-}
-
-func newHTTPClient() *http.Client {
-	// preconfigured HTTP client
-	return &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true}},
-		Timeout: 1 * time.Second,
-	}
 }
 
 // func checkErr(writer http.ResponseWriter, err error, message string, statusCode int) {
@@ -57,43 +33,36 @@ func newHTTPClient() *http.Client {
 
 func shortHandler(wr http.ResponseWriter, req *http.Request) {
 
-	urls, ok := req.URL.Query()["url"] // Get a copy of the query values.
+	urls, ok := req.URL.Query()["url"] // Get a copy of the queried value.
 	if !ok || len(urls[0]) < 1 {
-		http.Error(wr, "error missing url", http.StatusBadRequest)
+		http.Error(wr, ReturnError("missing url"), http.StatusBadRequest)
 		return
 	}
 
 	url, err := url.ParseRequestURI(urls[0])
 	if err != nil {
-		http.Error(wr, "error does not seem to be an url", http.StatusBadRequest)
+		http.Error(wr, ReturnError("failed to parse URL"), http.StatusBadRequest)
 		return
 	}
 
-	ss := storageStruct{
-		Key:   fmt.Sprint(hashURL(url.String())),
-		Value: url.String(),
-	}
-	ssJSON, _ := json.Marshal(ss)
-	log.Printf("%v\n", string(ssJSON))
-
-	storageServiceReq, err := http.NewRequest(http.MethodPost, storageService+storageServiceSet, bytes.NewBuffer(ssJSON))
+	urlHash := fmt.Sprint(hashURL(url.String()))
+	ssJSON, err := NewStorageKey(urlHash, url.String())
 	if err != nil {
-		http.Error(wr, "Oops... something unknown happened :)", http.StatusInternalServerError)
-		log.Println(err.Error())
+		log.Printf(err.Error())
+		http.Error(wr, ReturnError("Oops... JSONs"), http.StatusInternalServerError)
 		return
 	}
 
-	client := newHTTPClient()
-	resp, err := client.Do(storageServiceReq)
+	ok, err = StorageSet(ssJSON)
 	if err != nil {
-		http.Error(wr, "Oops... could not contact backing service", http.StatusInternalServerError)
-		log.Println(err.Error())
+		log.Printf(err.Error())
+		http.Error(wr, ReturnError("Oops... could not contact backing service"), http.StatusInternalServerError)
 		return
 	}
 
-	if resp.StatusCode == http.StatusOK {
+	if ok {
 		wr.WriteHeader(http.StatusOK)
-		wr.Write([]byte(req.Host + "/r/" + ss.Key))
+		wr.Write(ReturnURL(req.Host + "/r/" + urlHash))
 	}
 }
 
@@ -107,42 +76,18 @@ func redirectHandler(wr http.ResponseWriter, req *http.Request) {
 		return
 	}
 	key := p[1]
-	reqURL := storageService + storageServiceGet + key
-	// fmt.Printf("%v, %v \n", key, reqURL)
-
-	storageServiceReq, err := http.NewRequest(http.MethodGet, reqURL, nil)
+	storageData, err := StorageGet(key)
 	if err != nil {
-		http.Error(wr, "Oops... something unknown happened :)", http.StatusInternalServerError)
 		log.Printf(err.Error())
-		return
+		http.Error(wr, ReturnError("Oops... Backing services"), http.StatusInternalServerError)
 	}
-
-	client := newHTTPClient()
-	resp, err := client.Do(storageServiceReq)
+	redirectURL, _ := DecodeStorageData(storageData)
 	if err != nil {
-		log.Println(err.Error())
-		http.Error(wr, "Oops... could not contact backing service", http.StatusInternalServerError)
-		return
+		log.Printf(err.Error())
+		http.Error(wr, ReturnError("Oops... url not in our DB"), http.StatusBadRequest)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err.Error())
-		http.Error(wr, "Ooops... could not contact backing service", http.StatusInternalServerError)
-		return
-	}
-	// log.Printf("%v", string(body))
-
-	var message map[string]interface{}
-	_ = json.Unmarshal(body, &message) // handle error
-
-	redirectURL := message["value"].(string) // .(string) type assertion
-	if redirectURL == "" {
-		log.Println("received key value is empty")
-		return
-	}
 	http.Redirect(wr, req, redirectURL, http.StatusMovedPermanently)
-
 }
 
 func main() {
