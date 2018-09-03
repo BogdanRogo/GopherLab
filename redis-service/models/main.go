@@ -8,4 +8,5 @@ type OutResponse struct {
 type SetKeyParams struct {
 	Key   string      `json:"key"`
 	Value interface{} `json:"value"`
+	TTL   int         `json:"ttl"`
 }
