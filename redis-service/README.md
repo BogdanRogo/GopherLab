@@ -14,3 +14,27 @@ QUIT
 +OK
 Connection closed by foreign host.
 ```
+
+
+# Endpoints
+## GET /ping
+Is used to check connection to redis server. Does not accept payload
+
+## POST /set-key
+Is used to set a value to a specific key
+### Payload example: 
+```json
+{
+	"key": "key2",
+	"value": "This is a values"
+}
+```
+
+### Response example:
+Success: 
+```json
+{
+    "message": "Success",
+    "status": 200
+}
+```
