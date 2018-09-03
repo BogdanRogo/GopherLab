@@ -26,6 +26,11 @@ type storageStruct struct {
 	Value string `json:"value"`
 }
 
+type userMessage struct {
+	URL   string `json:"url,omitempty"`
+	Error string `json:"error,omitempty"`
+}
+
 func hashURL(url string) uint32 {
 	// returns the hash of the url
 	const Size = 4
