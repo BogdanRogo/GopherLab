@@ -38,3 +38,14 @@ Success:
     "status": 200
 }
 ```
+
+## DELETE /del-keys?keys=k1&keys=k2&keys=k3
+Is used to delete an array of givven keys
+
+### Response example
+```json
+{
+    "message": "Successfully deleted keys: [k1 k2]",
+    "status": 200
+}
+```
