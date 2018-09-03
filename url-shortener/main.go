@@ -2,8 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"hash/adler32"
 	"log"
 	"net/http"
 	"net/url"
@@ -15,13 +13,6 @@ var (
 	storageServiceSet = "/set-key"              // POST json
 	storageServiceGet = "/get-key/"             // GET /get-key/2600343750
 )
-
-func hashURL(url string) uint32 {
-	// returns the hash of the url
-	const Size = 4
-	// return crc32.ChecksumIEEE([]byte(url)) // CRC
-	return adler32.Checksum([]byte(url)) //ADLER
-}
 
 // func checkErr(writer http.ResponseWriter, err error, message string, statusCode int) {
 // 	if err != nil {
@@ -45,7 +36,7 @@ func shortHandler(wr http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	urlHash := fmt.Sprint(hashURL(url.String()))
+	urlHash := dataHash(url.String())
 	ssJSON, err := NewStorageKey(urlHash, url.String())
 	if err != nil {
 		log.Printf(err.Error())
