@@ -29,6 +29,7 @@ func main() {
 	router.HandleFunc("/ping", PingHandler).Methods("GET")
 	router.HandleFunc("/set-key", SetKeyHandler).Methods("POST")
 	router.HandleFunc("/get-key/{key}", GetKeyHandler).Methods("GET")
+	router.HandleFunc("/del-keys", DelKeyHandler).Methods("DELETE")
 
 	handler := cors.AllowAll().Handler(router)
 
@@ -86,4 +87,32 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 	pong, err := client.Ping().Result()
 	utils.CheckErr(err)
 	json.NewEncoder(w).Encode(models.OutResponse{Message: pong, Status: http.StatusOK})
+}
+
+// DelKeyHandler is used to delete a list of keys
+func DelKeyHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	vars := r.URL.Query()
+	keys := vars["keys"]
+
+	response := models.OutResponse{}
+	if len(keys) == 0 {
+		response.Message = "No keys provided"
+		response.Status = http.StatusUnprocessableEntity
+		log.Println("<Del keys> error: No keys provided")
+	} else {
+		err := client.Del(keys...).Err()
+
+		if err != nil {
+			response.Message = "Something went wrong"
+			response.Status = http.StatusInternalServerError
+			log.Printf("<Del keys> error: %v\n", err)
+		} else {
+			response.Message = fmt.Sprintf("Successfully deleted keys: %v", keys)
+			response.Status = http.StatusOK
+			log.Printf("<Del keys> success: Successfully deleted keys: %v", keys)
+		}
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
