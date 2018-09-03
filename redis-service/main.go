@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"git.metrosystems.net/reliability-engineering/GopherLab/redis-service/models"
-	"git.metrosystems.net/reliability-engineering/GopherLab/redis-service/utils"
+	"git.metrosystems.net/reliability-engineering/reliability-sandbox/GopherLab/redis-service/models"
+	"git.metrosystems.net/reliability-engineering/reliability-sandbox/GopherLab/redis-service/utils"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"

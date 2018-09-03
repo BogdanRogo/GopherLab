@@ -14,4 +14,3 @@ QUIT
 +OK
 Connection closed by foreign host.
 ```
-
