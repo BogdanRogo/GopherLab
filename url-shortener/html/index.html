@@ -6,66 +6,95 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+    <style type="text/css">
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+    </style>
 </head>
 
 <body>
-    <nav class="indigo" role="navigation" style="height: 48px;">
-    </nav>
-    <div class="container">
-        <div class="row">
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content center-align">
-                        <!-- <span class="card-title">Welcome to GopherLab - HandsOn golang laboratory</span> -->
-                        <h4>Welcome to GopherLab - HandsOn golang laboratory</h4>
-                        <img class="responsive-img" src="gopher.jpeg" />
-                    </div>
-                </div>
-            </div>
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <h4 class="center-align">URL Shortner</h4>
-                        <div class="input-field">
-                            <input type="url" name="url" id="url" pattern="https://.*" size="20" required>
-                            <!-- <input type="text" name="url" id="url" value="https://medium.com/metrosystemsro/gitops-with-weave-flux-40997e929254"> -->
-                            <label for="url">https://example.com/golang-is-awesome/</label>
-                            <span class="helper-text" data-error="wrong" data-success="right">Helper text</span>
-                            <input class="waves-effect waves-light btn" type="button" value="Make it short" onclick="myFunction(document.getElementById('url').value)">
+    <header>
+        <div class="nav-wrapper">
+            <nav class="indigo" role="navigation" style="height: 48px;">
+                <a href="#" class="brand-logo">GopherLab</a> </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="row">
+                <div class="container">
+                    <div class="col s12">
+                        <div class="card">
+                            <div class="card-content center-align">
+                                <!-- <span class="card-title">Welcome to GopherLab - HandsOn golang laboratory</span> -->
+                                <h4>HandsOn golang laboratory</h4>
+                                <img class="responsive-img" src="gopher.jpeg" />
+                            </div>
                         </div>
                     </div>
-                    <div class="card-action">
-                        <div class="center-align" id="shortURL">
+                    <div class="col s12">
+                        <div class="card">
+                            <div class="card-content">
+                                <h4 class="center-align">URL Shortner</h4>
+                                <div class="input-field">
+                                    <!-- <input type="text" name="url" id="url"> -->
+                                    <input type="text" name="url" id="url" value="https://medium.com/metrosystemsro/gitops-with-weave-flux-40997e929254">
+                                    <label for="url">https://example.com/golang-is-awesome/</label>
+                                    <span class="helper-text" data-error="wrong" data-success="right">Helper text</span>
+                                    <input class="waves-effect waves-light btn" type="button" value="Make it short"
+                                        onclick="myFunction(document.getElementById('url').value)">
+                                </div>
+                            </div>
+                            <div class="card-action">
+                                <div class="center-align" id="shortURL">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </main>
+    <footer class="page-footer indigo">
 
-        <script>
-            function myFunction(url) {
-                var resultElement = document.getElementById('shortURL');
-                console.log(url);
-                resultElement.innerHTML = '';
+        <div class="footer-copyright">
+            <div class="container">
+                © 2014 Copyright Text
+            </div>
+        </div>
 
-                axios.get('/short', {
-                        params: {
-                            url: url
-                        }
-                    })
-                    .then(function (response) {
-                        resultElement.innerHTML = response.data.url;
-                    })
-                    .catch(function (error) {
-                        resultElement.innerHTML = error.response.data.error;
-                        // console.log(error.response.data)
-                    });
-            }
-        </script>
+    </footer>
 
-        <!-- Compiled and minified JavaScript -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        function myFunction(url) {
+            var resultElement = document.getElementById('shortURL');
+            console.log(url);
+            resultElement.innerHTML = '';
+
+            axios.get('/short', {
+                    params: {
+                        url: url
+                    }
+                })
+                .then(function (response) {
+                    resultElement.innerHTML = response.data.url;
+                })
+                .catch(function (error) {
+                    resultElement.innerHTML = error.response.data.error;
+                    // console.log(error.response.data)
+                });
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 </body>
 

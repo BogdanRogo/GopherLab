@@ -3,7 +3,7 @@
 Service description
 
 ```bash
-                           - path /                --> ???
+                           - path /                --> index.html
                          /
 user --> url-shortener < - - path /short&url={url} --> receive a short url
                          \

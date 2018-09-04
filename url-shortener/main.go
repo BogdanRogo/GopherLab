@@ -43,7 +43,7 @@ func shortHandler(wr http.ResponseWriter, req *http.Request) {
 		http.Error(wr, utils.ReturnError("Oops... JSONs"), http.StatusInternalServerError)
 		return
 	}
-
+	log.Printf("%v", string(ssJSON))
 	ok, err = StoreConfig.StorageSet(ssJSON)
 	if err != nil {
 		log.Printf(err.Error())
