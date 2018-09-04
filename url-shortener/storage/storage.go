@@ -1,4 +1,4 @@
-package main
+package storage
 
 import (
 	"bytes"
@@ -10,6 +10,13 @@ import (
 	"net/http"
 	"time"
 )
+
+type StorageConfig struct {
+	Addr string //= "http://localhost:8080" // @todo --> use ENV vars
+	Set  string //= "/set-key"              // POST json
+	Get  string //= "/get-key/"             // GET /get-key/2600343750
+
+}
 
 type storageStruct struct {
 	Key   string `json:"key"`
@@ -26,7 +33,7 @@ func newHTTPClient() *http.Client {
 }
 
 // NewStorageKey ...
-func NewStorageKey(key, value string) ([]byte, error) {
+func (sc *StorageConfig) NewStorageKey(key, value string) ([]byte, error) {
 	ss := storageStruct{
 		Key:   key,
 		Value: value,
@@ -39,8 +46,8 @@ func NewStorageKey(key, value string) ([]byte, error) {
 }
 
 // StorageSet ...
-func StorageSet(data []byte) (bool, error) {
-	storageServiceReq, err := http.NewRequest(http.MethodPost, storageService+storageServiceSet, bytes.NewBuffer(data))
+func (sc *StorageConfig) StorageSet(data []byte) (bool, error) {
+	storageServiceReq, err := http.NewRequest(http.MethodPost, sc.Addr+sc.Set, bytes.NewBuffer(data))
 	if err != nil {
 		return false, err
 	}
@@ -57,9 +64,9 @@ func StorageSet(data []byte) (bool, error) {
 }
 
 // StorageGet ...
-func StorageGet(key string) ([]byte, error) {
+func (sc *StorageConfig) StorageGet(key string) ([]byte, error) {
 
-	reqURL := storageService + storageServiceGet + key
+	reqURL := sc.Addr + sc.Get + key
 	// fmt.Printf("%v, %v \n", key, reqURL)
 
 	storageServiceReq, err := http.NewRequest(http.MethodGet, reqURL, nil)
@@ -85,7 +92,7 @@ func StorageGet(key string) ([]byte, error) {
 }
 
 // DecodeStorageData ...
-func DecodeStorageData(data []byte) (string, error) {
+func (sc *StorageConfig) DecodeStorageData(data []byte) (string, error) {
 	var message map[string]interface{}
 	err := json.Unmarshal(data, &message) // handle error
 	if err != nil {

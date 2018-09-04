@@ -1,11 +1,11 @@
-package main
+package utils
 
 import (
 	"fmt"
 	"hash/adler32"
 )
 
-func dataHash(url string) string {
+func DataHash(url string) string {
 	// returns the hash of the url
 	// could try to use https://github.com/matoous/go-nanoid
 	const Size = 4

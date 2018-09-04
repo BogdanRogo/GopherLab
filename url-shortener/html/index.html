@@ -5,7 +5,6 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
 </head>
 
@@ -13,7 +12,6 @@
     <nav class="indigo" role="navigation" style="height: 48px;">
     </nav>
     <div class="container">
-
         <div class="row">
             <div class="col s12">
                 <div class="card">
@@ -24,51 +22,27 @@
                     </div>
                 </div>
             </div>
-
-
             <div class="col s12">
                 <div class="card">
                     <div class="card-content">
-                        <h4> URL Shortner</h4>
+                        <h4 class="center-align">URL Shortner</h4>
                         <div class="input-field">
                             <input type="url" name="url" id="url" pattern="https://.*" size="20" required>
                             <!-- <input type="text" name="url" id="url" value="https://medium.com/metrosystemsro/gitops-with-weave-flux-40997e929254"> -->
                             <label for="url">https://example.com/golang-is-awesome/</label>
-                            <!-- <span class="helper-text" data-error="wrong" data-success="right">Helper text</span> -->
-                            <input class="waves-effect waves-light btn" type="button" value="Submit" onclick="myFunction(document.getElementById('url').value)">
+                            <span class="helper-text" data-error="wrong" data-success="right">Helper text</span>
+                            <input class="waves-effect waves-light btn" type="button" value="Make it short" onclick="myFunction(document.getElementById('url').value)">
                         </div>
                     </div>
                     <div class="card-action">
                         <div class="center-align" id="shortURL">
-
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
-
-
-
-        <!-- <div style="text-align: center;" class="main">
-            <h2> Welcome to GopherLab - HandsOn golang laboratory</h2>
-            <img src="https://cdn-images-1.medium.com/max/1600/1*1R4iZ4wrVdWtONwHkBmgDA.jpeg" />
-            <h4> URL Shortner</h4>
-
-            <div class="input-field col s12">
-                <input type="url" name="url" id="url" pattern="https://.*" size="20" required>
-                <label for="url">https://example.com/golang-is-awesome/</label>
-                <input class="waves-effect waves-light btn" type="button" value="Submit" onclick="myFunction(document.getElementById('url').value)">
-            </div>
-
-        </div>
-        <div>
-            <p align="center" id="shortURL"></p>
-        </div> -->
 
         <script>
-            M.AutoInit();
-
             function myFunction(url) {
                 var resultElement = document.getElementById('shortURL');
                 console.log(url);
