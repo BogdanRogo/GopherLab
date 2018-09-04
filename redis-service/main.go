@@ -50,14 +50,14 @@ func SetKeyHandler(w http.ResponseWriter, r *http.Request) {
 	if ttl == 0 {
 		ttl = time.Duration(864000) * time.Second
 	}
-
-	log.Println(ttl)
 	err = client.Set(params.Key, params.Value, ttl).Err()
 	response := models.OutResponse{Message: "Success", Status: http.StatusOK}
 	if err != nil {
 		response.Message = fmt.Sprintf("Error: %v", err)
 		response.Status = http.StatusUnprocessableEntity
 		log.Printf("<Set key> error: %v\n", err)
+		http.Error(w, utils.SerializeErrMessage(response), http.StatusUnprocessableEntity)
+		return
 	}
 
 	log.Printf("<Set key> result: %v\n", response)
@@ -80,6 +80,8 @@ func GetKeyHandler(w http.ResponseWriter, r *http.Request) {
 		result.Message = "Something went wrong"
 		result.Status = http.StatusInternalServerError
 		log.Printf("<Get key> error: %v\n", err)
+		http.Error(w, utils.SerializeErrMessage(result), http.StatusInternalServerError)
+		return
 	} else {
 		ttl, _ := client.TTL(keyString).Result()
 		json.NewEncoder(w).Encode(models.SetKeyParams{Key: keyString, Value: val, TTL: int(ttl / time.Second)})
@@ -94,7 +96,9 @@ func GetKeyHandler(w http.ResponseWriter, r *http.Request) {
 func PingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	pong, err := client.Ping().Result()
-	utils.CheckErr(err)
+	if err != nil {
+		http.Error(w, "Service Unavailable", http.StatusInternalServerError)
+	}
 	json.NewEncoder(w).Encode(models.OutResponse{Message: pong, Status: http.StatusOK})
 }
 
@@ -109,19 +113,21 @@ func DelKeyHandler(w http.ResponseWriter, r *http.Request) {
 		response.Message = "No keys provided"
 		response.Status = http.StatusUnprocessableEntity
 		log.Println("<Del keys> error: No keys provided")
-	} else {
-		err := client.Del(keys...).Err()
-
-		if err != nil {
-			response.Message = "Something went wrong"
-			response.Status = http.StatusInternalServerError
-			log.Printf("<Del keys> error: %v\n", err)
-		} else {
-			response.Message = fmt.Sprintf("Successfully deleted keys: %v", keys)
-			response.Status = http.StatusOK
-			log.Printf("<Del keys> success: Successfully deleted keys: %v", keys)
-		}
+		http.Error(w, utils.SerializeErrMessage(response), http.StatusUnprocessableEntity)
+		return
 	}
+	err := client.Del(keys...).Err()
+
+	if err != nil {
+		response.Message = "Something went wrong"
+		response.Status = http.StatusInternalServerError
+		log.Printf("<Del keys> error: %v\n", err)
+		http.Error(w, utils.SerializeErrMessage(response), http.StatusInternalServerError)
+		return
+	}
+	response.Message = fmt.Sprintf("Successfully deleted keys: %v", keys)
+	response.Status = http.StatusOK
+	log.Printf("<Del keys> success: Successfully deleted keys: %v", keys)
 
 	json.NewEncoder(w).Encode(response)
 }

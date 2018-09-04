@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"git.metrosystems.net/reliability-engineering/reliability-sandbox/GopherLab/redis-service/models"
 	"github.com/go-redis/redis"
 )
 
@@ -29,4 +30,10 @@ func SafeParams(params interface{}, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&params)
 	CheckErr(err)
+}
+
+func SerializeErrMessage(response models.OutResponse) string {
+	raw, err := json.Marshal(response)
+	CheckErr(err)
+	return string(raw)
 }
